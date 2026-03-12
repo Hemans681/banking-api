@@ -1,0 +1,9 @@
+pyvenv/
+pyvenv
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+.vscode/
+.pytest_cache
+*.venv
