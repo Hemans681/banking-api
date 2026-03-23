@@ -1,10 +1,12 @@
 # from django.shortcuts import render
+from decimal import Decimal
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from decimal import Decimal
 
 from banking_accounts.models import Account
+
 from .services import perform_transaction
 
 
