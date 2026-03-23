@@ -15,7 +15,6 @@ class TransactionView(APIView):
             account_id = request.data.get("account_id")
             amount = Decimal(request.data.get("amount"))
 
-
             account = perform_transaction(operation, account_id, amount)
             return Response({"balance": account.balance}, status.HTTP_200_OK)
         except Account.DoesNotExist:
