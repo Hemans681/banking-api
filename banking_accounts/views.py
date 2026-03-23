@@ -2,6 +2,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from decimal import Decimal
 
 from banking_accounts.models import Account
 from .services import perform_transaction
@@ -12,7 +13,8 @@ class TransactionView(APIView):
         try:
             operation = request.data.get("operation")
             account_id = request.data.get("account_id")
-            amount = float(request.data.get("amount"))
+            amount = Decimal(request.data.get("amount"))
+
 
             account = perform_transaction(operation, account_id, amount)
             return Response({"balance": account.balance}, status.HTTP_200_OK)
