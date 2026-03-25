@@ -17,7 +17,7 @@ class TransactionView(APIView):
             account_id = request.data.get("account_id")
             amount = Decimal(request.data.get("amount"))
 
-            account = perform_transaction(operation, account_id, amount)
+            account = perform_transaction(operation, account_id, amount, request.user)
             return Response({"balance": account.balance}, status.HTTP_200_OK)
         except Account.DoesNotExist:
             return Response({"error": "Account not found"}, status.HTTP_404_NOT_FOUND)
