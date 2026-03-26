@@ -22,7 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff black pytest
+          pip install ruff black pytest pytest-django
 
       - name: Check migrations
         run: python manage.py makemigrations --check --dry-run
