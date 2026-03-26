@@ -24,10 +24,16 @@ jobs:
           pip install -r requirements.txt
           pip install ruff black pytest
 
-      - name: lint with ruff
+      - name: Check migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Run migrations
+        run: python manage.py migrate
+
+      - name: Lint with Ruff
         run: ruff check .
 
-      - name: check formatting
+      - name: Check formatting with Black
         run: black --check .
 
       - name: test with pytest
