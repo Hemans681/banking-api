@@ -2,6 +2,7 @@
 from decimal import Decimal
 
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,6 +12,8 @@ from .services import perform_transaction
 
 
 class TransactionView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             operation = request.data.get("operation")
