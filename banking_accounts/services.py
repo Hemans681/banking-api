@@ -1,4 +1,3 @@
-
 from django.db import transaction
 
 from banking_accounts.models import Account, Transaction
