@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from banking_accounts.models import Account
 
-from .services import perform_transaction
+from .services import perform_transaction, transfer_funds
 
 
 class TransactionView(APIView):
@@ -29,3 +29,32 @@ class TransactionView(APIView):
 
 
 # Create your views here.
+class TransferView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from_account = request.data.get("from_account")
+        to_account = request.data.get("to_account")
+        amount = Decimal(str(request.data.get("amount")))
+
+        try:
+            from_account, to_account = transfer_funds(
+                from_account, to_account, amount, request.user
+            )
+            return Response(
+                {
+                    "message": "successful",
+                    "from_account_balance": from_account.balance,
+                    "to_account_balance": to_account.balance,
+                }
+            )
+        except ValueError as err:
+            return Response(
+                {"message": "unsuccessful", "error": str(err)},
+                status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as err:
+            return Response(
+                {"message": "unsuccessful", "error": str(err)},
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
