@@ -17,12 +17,14 @@ def test_deposit(user):
     account.refresh_from_db()
     assert account.balance == 1500
 
+
 @pytest.mark.django_db
 def test_withdraw_success(user):
-    account = Account.objects.create(name= "test2", balance=1500, user=user)
+    account = Account.objects.create(name="test2", balance=1500, user=user)
     perform_transaction("debit", account.id, 1000, user=user)
     account.refresh_from_db()
-    assert account.balance==500
+    assert account.balance == 500
+
 
 @pytest.mark.django_db
 def test_withdraw_insufficient(user):
