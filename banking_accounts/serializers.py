@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from banking_accounts.models import Transaction
+
 
 class TransactionSerializer(serializers.Serializer):
     operation = serializers.ChoiceField(choices=["credit", "debit"])
@@ -23,3 +25,9 @@ class TransferSerializer(serializers.Serializer):
         if data["amount"] <= 0:
             raise serializers.ValidationError("Amount must be greater than 0")
         return data
+
+
+class TransactionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ["id", "account_id", "amount", "type", "timestamp"]
