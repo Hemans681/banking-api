@@ -5,8 +5,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from banking_accounts.models import Account
-from banking_accounts.serializers import TransactionSerializer, TransferSerializer
+from banking_accounts.models import Account, Transaction
+from banking_accounts.serializers import (
+    TransactionHistorySerializer,
+    TransactionSerializer,
+    TransferSerializer,
+)
 
 from .services import perform_transaction, transfer_funds
 
@@ -77,3 +81,17 @@ class TransferView(APIView):
                 {"message": "unsuccessful", "error": str(err)},
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class TransactionHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        account_id = request.query_params.get("account_id")
+        # get all user transactions
+        transactions = Transaction.objects.filter(account__user=request.user)
+        # get account-wise selected user transaction
+        if account_id:
+            transactions = transactions.filter(account_id=account_id)
+        serializer = TransactionHistorySerializer(transactions, many=True)
+        return Response({"message": "successful", "data": serializer.data})

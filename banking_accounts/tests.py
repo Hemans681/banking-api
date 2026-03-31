@@ -3,8 +3,9 @@
 # Create your tests here.
 import pytest
 from django.contrib.auth.models import User
+from rest_framework.test import APIClient
 
-from banking_accounts.models import Account
+from banking_accounts.models import Account, Transaction
 from banking_accounts.services import perform_transaction, transfer_funds
 
 
@@ -58,3 +59,42 @@ def test_transfer_fail(user):
     to_account = Account.objects.create(name="Test", balance=100, user=user)
     with pytest.raises(ValueError):
         transfer_funds(account.id, to_account.id, 200, user)
+
+
+@pytest.mark.django_db
+def test_transaction_history_success():
+    # Arrange
+    user = User.objects.create_user(username="testuser", password="test123")
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    account = Account.objects.create(name="test", balance=1000, user=user)
+
+    Transaction.objects.create(account=account, amount=100, type="credit")
+    Transaction.objects.create(account=account, amount=50, type="debit")
+
+    # Act
+    response = client.get("/api/transaction/logs")
+
+    # Assert
+    assert response.status_code == 200
+    assert response.data["message"] == "successful"
+    assert len(response.data["data"]) == 2
+
+
+@pytest.mark.django_db
+def test_transaction_history_filter_by_account():
+    user = User.objects.create_user(username="testuser", password="test123")
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    acc1 = Account.objects.create(name="A", balance=1000, user=user)
+    acc2 = Account.objects.create(name="B", balance=1000, user=user)
+
+    Transaction.objects.create(account=acc1, amount=100, type="credit")
+    Transaction.objects.create(account=acc2, amount=200, type="credit")
+
+    response = client.get(f"/api/transaction/logs?account_id={acc1.id}")
+
+    assert response.status_code == 200
+    assert len(response.data["data"]) == 1
