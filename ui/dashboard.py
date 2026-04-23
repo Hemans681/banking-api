@@ -5,7 +5,7 @@ from clients.api import get_accounts, get_transactions
 
 
 def show_dashboard():
-    st.title("🏦 Dashboard")
+    st.title("🏦 Banking Dashboard")
 
     col1, col2 = st.columns([6, 1])
 
@@ -16,20 +16,31 @@ def show_dashboard():
             st.rerun()
 
     st.divider()
+    # Accounts Section
+    st.subheader("Your Accounts")
+
     acc = get_accounts(st.session_state.token)
-    st.write(acc)
+    # st.write(acc.json)
+
     if acc.ok:
         accounts = acc.json()
         if accounts:
             st.dataframe(pd.DataFrame(accounts), use_container_width=True)
         else:
             st.info("No Accounts Found")
-    r = get_transactions(st.session_state.token)
+    else:
+        st.error("Could not load accounts")
 
-    if r.ok:
-        data = r.json().get("data", [])
+    st.divider()
 
-        st.subheader("Transactions")
+    # Transaction Section
+
+    txn = get_transactions(st.session_state.token)
+
+    if txn.ok:
+        data = txn.json().get("data", [])
+
+        st.subheader("Recent Transactions")
 
         if data:
             df = pd.DataFrame(data)
@@ -37,4 +48,4 @@ def show_dashboard():
         else:
             st.info("No transactions yet.")
     else:
-        st.error(r.text)
+        st.error(txn.text)

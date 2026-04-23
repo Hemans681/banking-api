@@ -98,3 +98,37 @@ def test_transaction_history_filter_by_account():
 
     assert response.status_code == 200
     assert len(response.data["data"]) == 1
+
+
+# Tests for get api/accounts/
+@pytest.mark.django_db
+def test_get_accounts_returns_only_logged_in_user_account():
+    user1 = User.objects.create_user(username="don joe", password="pass123")
+    user2 = User.objects.create_user(username="jon doe", password="pass123")
+    Account.objects.create(name="primary", balance=2000, user=user1)
+    Account.objects.create(name="TermDeposit", balance=2000, user=user1)
+    Account.objects.create(name="primary", balance=3000, user=user2)
+    client = APIClient()
+    client.force_authenticate(user=user1)
+    response = client.get("/api/accounts/")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+
+
+@pytest.mark.django_db()
+def test_get_account_requires_authentication():
+    client = APIClient()
+    response = client.get("/api/accounts/")
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db()
+def test_get_account_empty_when_no_accounts():
+    user1 = User.objects.create_user(username="demo", password="abc123")
+    client = APIClient()
+    client.force_authenticate(user=user1)
+
+    response = client.get("/api/accounts/")
+    assert response.status_code == 200
+    assert response.json() == []

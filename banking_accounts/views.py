@@ -102,6 +102,7 @@ class AccountListView(APIView):
 
     def get(self, request):
         accounts = Account.objects.filter(user=request.user)
+        print(accounts)
         data = []
         for acc in accounts:
             data.append(
@@ -111,4 +112,4 @@ class AccountListView(APIView):
                     "balance": str(acc.balance),
                 }
             )
-        return Response(list(accounts))
+        return Response(list(data))
