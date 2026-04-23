@@ -12,5 +12,4 @@ urlpatterns = [
     path("transfer/", TransferView.as_view()),
     path("transaction/logs", TransactionHistoryView.as_view()),
     path("accounts/", AccountListView.as_view()),
-    path,
 ]
