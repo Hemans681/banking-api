@@ -1,6 +1,8 @@
-import streamlit as st
 import pandas as pd
-from clients.api import get_transactions
+import streamlit as st
+
+from clients.api import get_accounts, get_transactions
+
 
 def show_dashboard():
     st.title("🏦 Dashboard")
@@ -14,7 +16,14 @@ def show_dashboard():
             st.rerun()
 
     st.divider()
-
+    acc = get_accounts(st.session_state.token)
+    st.write(acc)
+    if acc.ok:
+        accounts = acc.json()
+        if accounts:
+            st.dataframe(pd.DataFrame(accounts), use_container_width=True)
+        else:
+            st.info("No Accounts Found")
     r = get_transactions(st.session_state.token)
 
     if r.ok:

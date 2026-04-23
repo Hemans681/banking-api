@@ -95,3 +95,20 @@ class TransactionHistoryView(APIView):
             transactions = transactions.filter(account_id=account_id)
         serializer = TransactionHistorySerializer(transactions, many=True)
         return Response({"message": "successful", "data": serializer.data})
+
+
+class AccountListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        accounts = Account.objects.filter(user=request.user)
+        data = []
+        for acc in accounts:
+            data.append(
+                {
+                    "id": acc.id,
+                    "name": acc.name,
+                    "balance": str(acc.balance),
+                }
+            )
+        return Response(list(accounts))
