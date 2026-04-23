@@ -49,3 +49,15 @@ def transfer_funds(from_account_id, to_account_id, amount, user):
     Transaction.objects.create(account=from_account, amount=amount, type="debit")
     Transaction.objects.create(account=to_account, amount=amount, type="credit")
     return from_account, to_account
+
+
+def create_account(user, name, account_type):
+    if not Account.objects.filter(user=user).exists():
+        raise ValueError("Primary account must be created by admin first.")
+
+    if Account.objects.filter(user=user, name=name).exists():
+        raise ValueError("You already have an account with this name.")
+
+    return Account.objects.create(
+        user=user, name=name, account_type=account_type, balance=0
+    )

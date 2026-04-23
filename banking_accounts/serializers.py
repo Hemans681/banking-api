@@ -31,3 +31,8 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ["id", "account_id", "amount", "type", "timestamp"]
+
+
+class AccountCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    account_type = serializers.CharField(max_length=50)

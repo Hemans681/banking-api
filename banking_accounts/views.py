@@ -7,12 +7,13 @@ from rest_framework.views import APIView
 
 from banking_accounts.models import Account, Transaction
 from banking_accounts.serializers import (
+    AccountCreateSerializer,
     TransactionHistorySerializer,
     TransactionSerializer,
     TransferSerializer,
 )
 
-from .services import perform_transaction, transfer_funds
+from .services import perform_transaction, transfer_funds, create_account
 
 
 class TransactionView(APIView):
@@ -113,3 +114,32 @@ class AccountListView(APIView):
                 }
             )
         return Response(list(data))
+
+    def post(self, request):
+        serializer = AccountCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        data = serializer.validated_data
+        try:
+            account = create_account(
+            request.user,
+            data["name"],
+            data["account_type"]
+        )
+            return Response(
+                {
+                    "message": "successful",
+                    "data": {
+                        "id": account.id,
+                        "name": account.name,
+                    },
+                }
+            )
+        except ValueError as err:
+            return Response(
+                {
+                    "error": str(err),
+                },
+                status.HTTP_400_BAD_REQUEST,
+            )

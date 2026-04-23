@@ -100,7 +100,7 @@ def test_transaction_history_filter_by_account():
     assert len(response.data["data"]) == 1
 
 
-# Tests for get api/accounts/
+# Tests for get api/accounts/ get request
 @pytest.mark.django_db
 def test_get_accounts_returns_only_logged_in_user_account():
     user1 = User.objects.create_user(username="don joe", password="pass123")
@@ -132,3 +132,54 @@ def test_get_account_empty_when_no_accounts():
     response = client.get("/api/accounts/")
     assert response.status_code == 200
     assert response.json() == []
+
+
+# Tests post for api/accounts/  request
+@pytest.mark.django_db
+def test_create_account_requires_first_admin_account():
+    user = User.objects.create_user(username="u2", password="pass123")
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.post(
+        "/api/accounts/", {"name": "Travel", "account_type": "Travel"}, format="json"
+    )
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_create_extra_account_success():
+    user = User.objects.create_user(username="u1", password="pass123")
+
+    Account.objects.create(
+        user=user, name="Primary", account_type="Savings", balance=1000
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.post(
+        "/api/accounts/", {"name": "Travel", "account_type": "Travel"}, format="json"
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_create_account_duplicate_name_blocked():
+    user = User.objects.create_user(username="u3", password="pass123")
+
+    Account.objects.create(
+        user=user, name="Primary", account_type="Savings", balance=1000
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.post(
+        "/api/accounts/", {"name": "Primary", "account_type": "Savings"}, format="json"
+    )
+
+    assert response.status_code == 400
