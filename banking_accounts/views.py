@@ -13,7 +13,7 @@ from banking_accounts.serializers import (
     TransferSerializer,
 )
 
-from .services import perform_transaction, transfer_funds, create_account
+from .services import create_account, perform_transaction, transfer_funds
 
 
 class TransactionView(APIView):
@@ -122,11 +122,7 @@ class AccountListView(APIView):
 
         data = serializer.validated_data
         try:
-            account = create_account(
-            request.user,
-            data["name"],
-            data["account_type"]
-        )
+            account = create_account(request.user, data["name"], data["account_type"])
             return Response(
                 {
                     "message": "successful",

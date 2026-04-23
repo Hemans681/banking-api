@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from clients.api import get_accounts, get_transactions
+from clients.api import create_account, get_accounts, get_transactions
 
 
 def show_dashboard():
@@ -29,7 +29,7 @@ def show_dashboard():
         else:
             st.info("No Accounts Found")
     else:
-        st.error("Could not load accounts")
+        st.error(acc.text)
 
     st.divider()
 
@@ -49,3 +49,20 @@ def show_dashboard():
             st.info("No transactions yet.")
     else:
         st.error(txn.text)
+
+    # Create Account Section
+    st.subheader("Create New Account")
+
+    name = st.text_input("Account Name")
+    acc_type = st.selectbox(
+        "Account Type", ["Savings", "Travel", "FD", "Current", "Loan"]
+    )
+
+    if st.button("Create Account"):
+        r = create_account(st.session_state.token, name, acc_type)
+
+        if r.status_code == 201:
+            st.success("Account created successfully")
+            st.rerun()
+        else:
+            st.error(r.json())

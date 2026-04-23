@@ -18,3 +18,12 @@ def get_transactions(token):
 def get_accounts(token):
     h = {"Authorization": f"Bearer {token}"}
     return requests.get(f"{BASE_URL}/accounts/", headers=h)
+
+
+def create_account(token, name, account_type):
+    h = {"Authorization": f"Bearer {token}"}
+    return requests.post(
+        f"{BASE_URL}/accounts/",
+        headers=h,
+        json={"name": name, "account_type": account_type},
+    )
